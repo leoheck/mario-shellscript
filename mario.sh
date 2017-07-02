@@ -1889,9 +1889,13 @@ fi
 . .settings
 
 # Mapa do score no topo da tela
-_scoreTitle0="     MARIO                                   WORLD               TIME           "
-_scoreTitle1="     000000                 @x00              1-1                 000           "
-
+if [[ "${is_luigi}" == "1" ]]; then
+	_scoreTitle0="     LUIGI                                   WORLD               TIME           "
+	_scoreTitle1="     000000                 @x00              1-1                 000           "
+else
+	_scoreTitle0="     MARIO                                   WORLD               TIME           "
+	_scoreTitle1="     000000                 @x00              1-1                 000           "
+fi
 
 # Mapa de caracters do jogador mario e das montanhas de fundo
 
@@ -1911,6 +1915,19 @@ _montDraw[7]="██                            ░░  ██"
  _menu[3]="                                                                                "
  _menu[4]="                                                                                "
  _menu[5]="               @                                                @               "
+if [[ "${is_luigi}" == "1" ]]; then
+ _menu[6]="                     ██     ██  ██  ████  █████   ████                          "
+ _menu[7]="                     ██     ██  ██   ██   ██       ██                           "
+ _menu[8]="                     ██     ██  ██   ██   ██ ███   ██                           "
+ _menu[9]="                     ██     ██  ██   ██   ██  ██   ██                           "
+_menu[10]="                     █████  ██████  ████  ██████  ████                          "
+_menu[11]="                                                                                "
+_menu[12]="                     █████   █████    ████    ████                              "
+_menu[13]="                     ██  ██  ██  ██  ██  ██  ██                                 "
+_menu[14]="                     █████   █████   ██  ██   ████                              "
+_menu[15]="                     ██  ██  ██  ██  ██  ██      ██  ██                         "
+_menu[16]="                     █████   ██  ██   ████    ████   ██                         "
+else
  _menu[6]="                    ██   ██   ████   █████   ██████   ████                      "
  _menu[7]="                    ███ ███  ██  ██  ██  ██    ██    ██  ██                     "
  _menu[8]="                    ██ █ ██  ██████  █████     ██    ██  ██                     "
@@ -1922,9 +1939,10 @@ _menu[13]="                     ██  ██  ██  ██  ██  ██  
 _menu[14]="                     █████   █████   ██  ██   ████                              "
 _menu[15]="                     ██  ██  ██  ██  ██  ██      ██  ██                         "
 _menu[16]="                     █████   ██  ██   ████    ████   ██                         "
+fi
 _menu[17]="               @                                                @               "
 _menu[18]="                                           2012 FATEC CARAPICUIBA               "
-_menu[19]="                                                                                "
+_menu[19]="                                    Sergio Prado Challenge 2017/6               "
 _menu[20]="                                                                                "
 _menu[21]="                                                                                "
 _menu[22]="                                                                                "
@@ -2205,7 +2223,7 @@ _marioE212='   ██   █████░░█'
 _marioE213='         ███ ██'
 
 
-# Overide mario
+# Change to Luigi
 if [[ "${is_luigi}" == "1" ]]; then
 	marioD0[0]=16
 	 _marioD0[1]=""
