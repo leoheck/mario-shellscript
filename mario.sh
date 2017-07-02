@@ -33,8 +33,8 @@
 # CHANGELOG:
 
 # 2012/05/09 (Doriedson, Vitor, Thiago)
-# Eliminada a funcao LoadGame que carregava o mapa da primeira fase em caracters e criada a LoadFase1 para gerar a primeira fase 
-# a partir de mapa de caracters menores. 
+# Eliminada a funcao LoadGame que carregava o mapa da primeira fase em caracters e criada a LoadFase1 para gerar a primeira fase
+# a partir de mapa de caracters menores.
 # Criada funcao MontaCanvas para pegar o tamanho da tela em um mapa de caracters e jogar no buffer
 
 # 2012/05/15 (Doriedson, Vitor, Thiago)
@@ -71,6 +71,16 @@
 # [ FUNCOES ] --------------------------------------------------------------------------------------------------------
 
 _version="1.0" #20120618
+
+# function called by trap
+CTRL_C() {
+	if [ $_musicId ]; then
+		Stop $_musicId #Mata o processo da musica de fundo
+	fi
+	Sair
+}
+
+trap 'CTRL_C' SIGINT
 
 # Funcao para pegar tamanho do terminal
 function TerminalSize {
@@ -113,7 +123,7 @@ function ResizeScreen {
 		_spaceIni=`printf "%${_i}s"`
 		_spaceFim=`printf "%${_f}s"`
 	fi
-	
+
 	((_s= _width*_height))
 
 	_clearScreen=`printf "%${_s}s"`
@@ -129,7 +139,7 @@ function ResizeScreen {
 
 	tput reset
 	tput civis
-	
+
 	# Configura a cor do fundo da tela
 	#tput setab 7
 
@@ -146,7 +156,7 @@ function ResizeScreen {
 function ClearScreen {
 
 	tput cup 0 0
-	
+
 	if [ $_color = "on" ]; then
 		echo -ne "${_cor[1]}$_clearScreen"
 	else
@@ -159,19 +169,19 @@ function ClearScreen {
 
 # Função para montar a primeira fase do jogo
 function LoadFase1 {
-	
+
 	_sizeFase=3000 # Tamanho da fase (largura)
 	_btela=`printf "%${_sizeFase}s"` # Variavel com caracter espaço do tamanho da fase para montar o buffer da tela
 
 	_tamQuad=100
 
-	_flagDraw[4]="█          ███"	
+	_flagDraw[4]="█          ███"
 
 	_flagX=2883
 	_flagY=6
 
 	# Vetor de localização dos inimigos definindo sua area de movimento
-	_enemyX=(0 200 350 500 650 900 1490 1750 2030 2450 2780) 
+	_enemyX=(0 200 350 500 650 900 1490 1750 2030 2450 2780)
 	_enemyPathIni=(0 150 320 460 610 880 1480 1710 2000 2330 2700)
 	_enemyPathFim=(0 250 420 560 710 980 1580 1810 2100 2480 2800)
 
@@ -188,7 +198,7 @@ function LoadFase1 {
 	_buraco=(0 280 580 850 1420 1830 2300 2500)
 
 	# Vetor para guardar a posição das monts na tela
-	_mont=(0 35 150 210 390 520 740 810 960 1050 1180 1250 1360 1570 1780 1900 2060 2120 2350 2420 2580 2790) 
+	_mont=(0 35 150 210 390 520 740 810 960 1050 1180 1250 1360 1570 1780 1900 2060 2120 2350 2420 2580 2790)
 
 	_nuvem[0]=${#_nuvem[*]} # Define a quantidade de nuvens no cenario
 	_nuvemY=(0) # Posicao em Y da nuvem no cenario
@@ -255,10 +265,10 @@ function LoadFase1 {
 	_buracoWidth=25
 
 	#buffer da tela
-	for (( _k=0; _k<=36; _k++ )); do	
+	for (( _k=0; _k<=36; _k++ )); do
 		_fasel[$_k]="$_btela"
 	done
-	
+
 	#monta o piso da fase no buffer
 	_tmp=$((_sizeFase / 10))
 
@@ -277,14 +287,14 @@ function LoadFase1 {
 
 	#desenha as nuvens no cenario
 	for (( _k=1; _k<_nuvem[0]; _k++ )); do
-		
+
 		_tmpPos=${_nuvem[$_k]}
 
 		_ind=${_nuvemY[$_k]}
 
 		for (( _l=_ind; _l<_ind + _nuvemDraw[0]; _l++ )); do
 
-			_tmp0=$(( _l - _ind + 1))			
+			_tmp0=$(( _l - _ind + 1))
 			_tmp1=${#_nuvemDraw[$_tmp0]}
 
 			_f=$(( _tmpPos + _tmp1  ))
@@ -295,7 +305,7 @@ function LoadFase1 {
 
 	#desenha os buracos na fase
 #	for (( _k=1; _k<_buraco[0]; _k++ )); do
-#		
+#
 #		_tmpPos=${_buraco[$_k]}
 #
 #		_f=$(( _tmpPos + 24 ))
@@ -363,7 +373,7 @@ function DrawBuraco {
 	for (( _k=1; _k < _ubound; _k++ )); do #laco para verificar cada inimigo
 
 		#verifica se o buraco esta visivel na camera
-		if [ $((_buraco[_k] + _buracoWidth)) -ge $_cameraX ] && [ ${_buraco[$_k]} -le $((_cameraX + _width)) ]; then 
+		if [ $((_buraco[_k] + _buracoWidth)) -ge $_cameraX ] && [ ${_buraco[$_k]} -le $((_cameraX + _width)) ]; then
 
 			_buracoX=$(( _buraco[_k] + _edgeWidth - _cameraX ))
 			_buracoL=$(( _buracoX + _buracoWidth ))
@@ -413,7 +423,7 @@ function MontaCanvas {
 
 		_cameraX=0 #zera a posicao da camera
 
-	else 
+	else
 		if [ $_jogX -ge $((_sizeFase - _widthMid)) ]; then #se posicao do jogador passou do meio do terminal
 
 			_cameraX=$((_sizeFase - _width)) #fixa a camera no final da fase
@@ -441,7 +451,7 @@ function Sair {
 
 	#Restaura configurações do terminal
 	stty $_terminal
-	
+
 	#Retorna o ponteiro que pisca na tela
 	tput cnorm
 
@@ -451,15 +461,15 @@ function Sair {
 	#Limpa a tela
 	tput reset
 
-	#Restaura o terminal ao seu padrao	
+	#Restaura o terminal ao seu padrao
 	#stty sane
-	
+
 	# Verifica se ocorreu algum erro e imprime na tela do terminal
 	if [ "$_erro" != "" ]; then
 		echo -e $_erro
 	fi
-	
-	# termina o programa	
+
+	# termina o programa
 	exit
 }
 
@@ -473,7 +483,7 @@ function InitGame {
 	_jogLife=3 #variavel com valor inicial de vidas para o jogo
 
 	Splash #Função para exibir as vidas do jogador
-	
+
 }
 
 # funcao para somar score e salvar top score
@@ -484,7 +494,7 @@ function Score {
 	if [ $_score -ge $_topScore ]; then
 		_topScore=$_score
 		SaveSettings
-	fi	
+	fi
 
 }
 
@@ -526,29 +536,42 @@ function Splash {
 
 	done
 
-	_canvas[12]="${_edgeScreen}${_spaceIni}                              █████                                             ${_spaceFim}${_edgeScreen}"
-	_canvas[13]="${_edgeScreen}${_spaceIni}                             █░░░░M███                                          ${_spaceFim}${_edgeScreen}"
-	_canvas[14]="${_edgeScreen}${_spaceIni}                            █░░░░░░░░░█                                         ${_spaceFim}${_edgeScreen}"
-	_canvas[15]="${_edgeScreen}${_spaceIni}                            ███  █ ███                                          ${_spaceFim}${_edgeScreen}"
-	_canvas[16]="${_edgeScreen}${_spaceIni}                           █  ██ █    █       X     0${_jogLife}                          ${_spaceFim}${_edgeScreen}"
-	_canvas[17]="${_edgeScreen}${_spaceIni}                           █  ██  █   █                                         ${_spaceFim}${_edgeScreen}"
-	_canvas[18]="${_edgeScreen}${_spaceIni}                            ██   █████                                          ${_spaceFim}${_edgeScreen}"
-	_canvas[19]="${_edgeScreen}${_spaceIni}                             ██     █                                           ${_spaceFim}${_edgeScreen}"
-	_canvas[20]="${_edgeScreen}${_spaceIni}                               █████                                            ${_spaceFim}${_edgeScreen}"
+	# Overide mario
+	if [[ "${is_luigi}" == "1" ]]; then
+		_canvas[12]="${_edgeScreen}${_spaceIni}                              █████                                             ${_spaceFim}${_edgeScreen}"
+		_canvas[13]="${_edgeScreen}${_spaceIni}                             █░░░░L███                                          ${_spaceFim}${_edgeScreen}"
+		_canvas[14]="${_edgeScreen}${_spaceIni}                            █░░░░░░░░░█                                         ${_spaceFim}${_edgeScreen}"
+		_canvas[15]="${_edgeScreen}${_spaceIni}                            ███  █ ███                                          ${_spaceFim}${_edgeScreen}"
+		_canvas[16]="${_edgeScreen}${_spaceIni}                           █  ██ █    █       X     0${_jogLife}                          ${_spaceFim}${_edgeScreen}"
+		_canvas[17]="${_edgeScreen}${_spaceIni}                           █  ██  █   █                                         ${_spaceFim}${_edgeScreen}"
+		_canvas[18]="${_edgeScreen}${_spaceIni}                            ██   █████                                          ${_spaceFim}${_edgeScreen}"
+		_canvas[19]="${_edgeScreen}${_spaceIni}                             ██     █                                           ${_spaceFim}${_edgeScreen}"
+		_canvas[20]="${_edgeScreen}${_spaceIni}                               █████                                            ${_spaceFim}${_edgeScreen}"
+	else
+		_canvas[12]="${_edgeScreen}${_spaceIni}                              █████                                             ${_spaceFim}${_edgeScreen}"
+		_canvas[13]="${_edgeScreen}${_spaceIni}                             █░░░░M███                                          ${_spaceFim}${_edgeScreen}"
+		_canvas[14]="${_edgeScreen}${_spaceIni}                            █░░░░░░░░░█                                         ${_spaceFim}${_edgeScreen}"
+		_canvas[15]="${_edgeScreen}${_spaceIni}                            ███  █ ███                                          ${_spaceFim}${_edgeScreen}"
+		_canvas[16]="${_edgeScreen}${_spaceIni}                           █  ██ █    █       X     0${_jogLife}                          ${_spaceFim}${_edgeScreen}"
+		_canvas[17]="${_edgeScreen}${_spaceIni}                           █  ██  █   █                                         ${_spaceFim}${_edgeScreen}"
+		_canvas[18]="${_edgeScreen}${_spaceIni}                            ██   █████                                          ${_spaceFim}${_edgeScreen}"
+		_canvas[19]="${_edgeScreen}${_spaceIni}                             ██     █                                           ${_spaceFim}${_edgeScreen}"
+		_canvas[20]="${_edgeScreen}${_spaceIni}                               █████                                            ${_spaceFim}${_edgeScreen}"		
+	fi
 
 	for (( _y=21; _y<_heightScreen; _y++ )); do
 
 		_canvas[$_y]="${_edgeScreen}${_spaceScreen}${_edgeScreen}"
 
 	done
-	
+
 	Render #chama função Render
 
 	LoadFase1 #Carrega a tela da primeira fase para o buffer
 
 	sleep 1 #adormece o script por 1 segundos
 
-	#Toca som de fundo tema	
+	#Toca som de fundo tema
 	Play "background"
 
 	#Seta o nome da tela atual(posicao no jogo)
@@ -574,11 +597,11 @@ function GameOver {
 
 	#desenho do gameover
 
-	_canvas[13]="${_edgeScreen}$_spaceIni  ████    ████   ██   ██  ██████           ████   ██  ██  ██████  █████     ██  $_spaceFim${_edgeScreen}" 
-	_canvas[14]="${_edgeScreen}$_spaceIni ██      ██  ██  ███ ███  ██              ██  ██  ██  ██  ██      ██  ██    ██  $_spaceFim${_edgeScreen}" 
-	_canvas[15]="${_edgeScreen}$_spaceIni ██ ███  ██████  ██ █ ██  ████            ██  ██  ██  ██  ████    █████     ██  $_spaceFim${_edgeScreen}" 
-	_canvas[16]="${_edgeScreen}$_spaceIni ██  ██  ██  ██  ██   ██  ██              ██  ██   ████   ██      ██  ██        $_spaceFim${_edgeScreen}"   
-	_canvas[17]="${_edgeScreen}$_spaceIni  ████   ██  ██  ██   ██  ██████           ████     ██    ██████  ██  ██    ██  $_spaceFim${_edgeScreen}"  
+	_canvas[13]="${_edgeScreen}$_spaceIni  ████    ████   ██   ██  ██████           ████   ██  ██  ██████  █████     ██  $_spaceFim${_edgeScreen}"
+	_canvas[14]="${_edgeScreen}$_spaceIni ██      ██  ██  ███ ███  ██              ██  ██  ██  ██  ██      ██  ██    ██  $_spaceFim${_edgeScreen}"
+	_canvas[15]="${_edgeScreen}$_spaceIni ██ ███  ██████  ██ █ ██  ████            ██  ██  ██  ██  ████    █████     ██  $_spaceFim${_edgeScreen}"
+	_canvas[16]="${_edgeScreen}$_spaceIni ██  ██  ██  ██  ██   ██  ██              ██  ██   ████   ██      ██  ██        $_spaceFim${_edgeScreen}"
+	_canvas[17]="${_edgeScreen}$_spaceIni  ████   ██  ██  ██   ██  ██████           ████     ██    ██████  ██  ██    ██  $_spaceFim${_edgeScreen}"
 
 
 	for (( _y=18; _y<_heightScreen; _y++ )); do
@@ -611,11 +634,11 @@ function GameWin {
 
 	#desenho do fim do jogo WIN
 
-_canvas[10]="${_edgeScreen}${_spaceIni}      █████    ████   █████    ████   █████   ██████  ██  ██   ████     ██      ${_spaceFim}${_edgeScreen}" 
-_canvas[11]="${_edgeScreen}${_spaceIni}      ██  ██  ██  ██  ██  ██  ██  ██  ██  ██  ██      ███ ██  ██        ██      ${_spaceFim}${_edgeScreen}" 
-_canvas[12]="${_edgeScreen}${_spaceIni}      █████   ██████  █████   ██████  █████   ████    ██ ███   ████     ██      ${_spaceFim}${_edgeScreen}" 
-_canvas[13]="${_edgeScreen}${_spaceIni}      ██      ██  ██  ██  ██  ██  ██  ██  ██  ██      ██  ██      ██            ${_spaceFim}${_edgeScreen}"   
-_canvas[14]="${_edgeScreen}${_spaceIni}      ██      ██  ██  ██  ██  ██  ██  █████   ██████  ██  ██   ████     ██      ${_spaceFim}${_edgeScreen}"  
+_canvas[10]="${_edgeScreen}${_spaceIni}      █████    ████   █████    ████   █████   ██████  ██  ██   ████     ██      ${_spaceFim}${_edgeScreen}"
+_canvas[11]="${_edgeScreen}${_spaceIni}      ██  ██  ██  ██  ██  ██  ██  ██  ██  ██  ██      ███ ██  ██        ██      ${_spaceFim}${_edgeScreen}"
+_canvas[12]="${_edgeScreen}${_spaceIni}      █████   ██████  █████   ██████  █████   ████    ██ ███   ████     ██      ${_spaceFim}${_edgeScreen}"
+_canvas[13]="${_edgeScreen}${_spaceIni}      ██      ██  ██  ██  ██  ██  ██  ██  ██  ██      ██  ██      ██            ${_spaceFim}${_edgeScreen}"
+_canvas[14]="${_edgeScreen}${_spaceIni}      ██      ██  ██  ██  ██  ██  ██  █████   ██████  ██  ██   ████     ██      ${_spaceFim}${_edgeScreen}"
 _canvas[15]="${_edgeScreen}${_spaceScreen}${_edgeScreen}"
 _canvas[16]="${_edgeScreen}${_spaceScreen}${_edgeScreen}"
 _canvas[17]="${_edgeScreen}${_spaceScreen}${_edgeScreen}"
@@ -670,7 +693,7 @@ function MontaMenu {
 
 	#Preenche o buffer com a tela menu
 	for (( _y=0; _y<26; _y++ )); do
-		
+
 		_canvas[$_y]="${_edgeScreen}${_spaceIni}${_menu[$_y]}${_spaceFim}${_edgeScreen}"
 
 	done
@@ -679,7 +702,7 @@ function MontaMenu {
 	_canvas[26]="${_edgeScreen}${_spaceIni}${_menu[26]:0:$_tmpi}${_topScore}${_menu[26]:60}${_spaceFim}${_edgeScreen}"
 
 	for (( _y=27; _y<_heightScreen; _y++ )); do
-		
+
 		_canvas[$_y]="${_edgeScreen}${_spaceIni}${_menu[$_y]}${_spaceFim}${_edgeScreen}"
 
 	done
@@ -724,7 +747,7 @@ function LoadColors {
 		_canvasP[$_tmp]=$((_width * 37))
 		;;
 
-	"GAME"|"DEAD"|"WIN"|"WINPOINT") 
+	"GAME"|"DEAD"|"WIN"|"WINPOINT")
 		((_tmp++))
 		_canvasC[$_tmp]=${_cor[3]}
 		_canvasP[$_tmp]=$((_width * 37))
@@ -766,7 +789,7 @@ function DrawJogador {
 
 		#Desenha a linha do personagem no buffer da tela
 		#_screen="${_screen:0:$_posIniJog}${_tmp}${_screen:$_resto}"
-		_tmpJogY=$(( _jogY+_l-1))		
+		_tmpJogY=$(( _jogY+_l-1))
 		_canvas[$_tmpJogY]="${_canvas[$_tmpJogY]:0:$_tmpJogX}${_tmp}${_canvas[$_tmpJogY]:$_tmpf}"
 
 	done
@@ -777,7 +800,7 @@ function DrawScore {
 
 	# Gera novo buffer para tela
 	#_screen="$_canvas"
-	
+
 	#posicao das linhas temporariamente
 	_tmp=0
 
@@ -811,10 +834,10 @@ function DrawScore {
 
 #Desenha o buffer no terminal
 function Render {
-	
-	# se jogo esta em andamento chama função para montar o buffer da tela de acordo a posição da camera na fase	
+
+	# se jogo esta em andamento chama função para montar o buffer da tela de acordo a posição da camera na fase
 	case $_screenGame in
-	
+
 	"GAME"|"DEAD"|"WIN"|"WINPOINT")
 		MontaCanvas;;
 
@@ -876,9 +899,9 @@ function Render {
 	fi
 
 	#Desenha a cena atual do jogo no terminal
-	echo -ne "$_screen" 
+	echo -ne "$_screen"
 
-	tput cup $_initY 0 #Posiciona o ponteiro na tela para desenhar o buffer 
+	tput cup $_initY 0 #Posiciona o ponteiro na tela para desenhar o buffer
 
 }
 
@@ -928,18 +951,18 @@ function BubbleSort {
 	for (( _k=(_canvasC[0]); _k>1; _k-- )); do
 
 		for (( _l=1; _l<_k; _l++ )); do
-			
+
 			(( _tmp= _l + 1 ))
 
 
 			if [ $((_canvasP[$_l])) -gt $((_canvasP[$_tmp])) ]; then
 
-				_tmpV=${_canvasP[$_tmp]} 
-				_canvasP[$_tmp]=${_canvasP[$_l]} 
+				_tmpV=${_canvasP[$_tmp]}
+				_canvasP[$_tmp]=${_canvasP[$_l]}
 				_canvasP[$_l]=$_tmpV
 
-				_tmpC=${_canvasC[$_tmp]} 
-				_canvasC[$_tmp]=${_canvasC[$_l]} 
+				_tmpC=${_canvasC[$_tmp]}
+				_canvasC[$_tmp]=${_canvasC[$_l]}
 				_canvasC[$_l]=$_tmpC
 
 			fi
@@ -992,7 +1015,7 @@ function DrawCoin {
 					_tmpf=$((_coinX + _coinWidth))
 
 					#Desenha a linha da coin no buffer da tela
-					_tmpCoinY=$(( _coinY[_tmpCoin] + _l -1))		
+					_tmpCoinY=$(( _coinY[_tmpCoin] + _l -1))
 
 					_canvas[$_tmpCoinY]="${_canvas[$_tmpCoinY]:0:$_coinX}${_tmpS}${_canvas[$_tmpCoinY]:$_tmpf}"
 
@@ -1048,8 +1071,8 @@ function DrawFlag {
 
 		done
 
-		
-	
+
+
 	fi
 
 }
@@ -1062,7 +1085,7 @@ function DrawEnemy {
 	for (( _k=1; _k < _ubound; _k++ )); do #laco para verificar cada inimigo
 
 		#verifica se o path do inimigo esta visivel na camera
-		if [ $((_enemyX[_k] + _enemyWidth)) -ge $_cameraX ] && [ ${_enemyX[$_k]} -le $((_cameraX + _width)) ] && [ ${_enemySprite[$_k]} -le 6 ]; then 
+		if [ $((_enemyX[_k] + _enemyWidth)) -ge $_cameraX ] && [ ${_enemyX[$_k]} -le $((_cameraX + _width)) ] && [ ${_enemySprite[$_k]} -le 6 ]; then
 
 			_tmpY="_gompa${_enemySprite[$_k]}[0]" #Pega o sprite do inimigo
 			_tmpY="${!_tmpY}"
@@ -1096,7 +1119,7 @@ function DrawEnemy {
 function ListenKey {
 
 	# ouve as teclas pressionadas pelo teclado
-	_key=$(dd bs=3 count=1 2>/dev/null)	
+	_key=$(dd bs=3 count=1 2>/dev/null)
 
 #read -n1 -t 0.001 _key
 
@@ -1119,7 +1142,7 @@ function ListenKey {
 		;;
 
 
-	$KEY_ESC) #tecla ESC  
+	$KEY_ESC) #tecla ESC
 		case $_screenGame in
 
 		"MENU")
@@ -1130,7 +1153,7 @@ function ListenKey {
 
 		esac
 		;;
-	
+
 	$KEY_UP) #Seta para cima
 		case $_screenGame in
 
@@ -1146,7 +1169,7 @@ function ListenKey {
 		esac
 		;;
 
-	$KEY_RIGHT) # Pressionado a seta para direita 
+	$KEY_RIGHT) # Pressionado a seta para direita
 		case $_screenGame in
 
 		"GAME")
@@ -1186,7 +1209,7 @@ function ListenKey {
 		;;
 
 	"c")
-		if [ $_color = "on" ]; then		
+		if [ $_color = "on" ]; then
 			_color="off"
 		else
 			_color="on"
@@ -1197,8 +1220,8 @@ function ListenKey {
 
 	esac
 
-	
-	#Se for capturado alguma tecla antes entao limpa o buffer para caso de segurar a tecla pressionada	
+
+	#Se for capturado alguma tecla antes entao limpa o buffer para caso de segurar a tecla pressionada
 	#if [ $_clearBuffer = true ] ; then
 	#	read -n100 -t0.001 _discard
 	#	_clearBuffer=false
@@ -1207,23 +1230,23 @@ function ListenKey {
 
 #Função para verificar quantos loops por segundo o jogo está conseguindo rodar
 function FPS {
-	# incrementa 1 na variável quadros	
+	# incrementa 1 na variável quadros
 	((_quadros++))
 
-	# Guarda o nanosegundo atual do relógio do sistema	
+	# Guarda o nanosegundo atual do relógio do sistema
 	_tempo2N=$((10#`date +%N`))
-	
+
 	# verifica se passou 1 segundo desde o início da contagem e coloca os quadros contados na
 	# variável _fps para exibição posteriormente
 #	if [ $((SECONDS - _tempoS)) -gt 0 ] ; then
 
 
-		#Guarda o segundo atual desde quando o terminal foi aberto	
+		#Guarda o segundo atual desde quando o terminal foi aberto
 #		_tempoS=$SECONDS
 
 
 #	fi
-	
+
 	#Calcula a diferenca entre agora e a ultima leitura em nanosegundo
 	_tmp=$((_tempo2N-_tempoN))
 
@@ -1232,7 +1255,7 @@ function FPS {
 		((_tmp+=1000000000))
 
 
-		if [ $_quadroRender -gt 5 ]; then		
+		if [ $_quadroRender -gt 5 ]; then
 			#Atualiza a taxa de quadros por segundo
 			_lps=$_quadros
 			_fps=$_quadroRender
@@ -1259,7 +1282,7 @@ function FPS {
 		case $_screenGame in
 
 		"GAME") #opção para reduzir um segundo no relógio de tempo do jogo
-	
+
 			_time=$(( _timeGame - (( SECONDS - _timeIni )) ))
 
 			if [ $_time -eq 30 ]; then
@@ -1273,7 +1296,7 @@ function FPS {
 				fi
 
 			elif [ $_time -eq 0 ]; then # se tempo acabou o personagem morre
-	
+
 				Dead "time"
 				_velocY=-5
 				_jogSprite=0
@@ -1305,7 +1328,7 @@ function Jogador {
 	"WIN")
 
 		# Controla o movimento na vertical(pulo) e faz colisao com o piso do cenario
-		if [ $_velocY -ne 0 ] || [ $((_jogY - 1 + _jogHeight)) -ne $((_piso - 1)) ]; then	
+		if [ $_velocY -ne 0 ] || [ $((_jogY - 1 + _jogHeight)) -ne $((_piso - 1)) ]; then
 
 			_jogSprite="2"
 			((_velocY+=_gravidade)) #incremento de velocidade pela gravidade
@@ -1354,8 +1377,8 @@ function Jogador {
 		fi
 
 		# Controla o movimento na horizontal do personagem e faz colisao com os limites do cenario
-		if [ $_velocX -ne 0 ]; then	
-			
+		if [ $_velocX -ne 0 ]; then
+
 			if [ $_velocX -gt 0 ]; then
 				((_jogX+=4)) # =_velocX)) #Movimenta o Personagem
 			else
@@ -1369,7 +1392,7 @@ function Jogador {
 				if [ $_jogX -lt 0 ]; then
 					_jogX=0
 				fi
-				
+
 				#se personagem toca o piso a velocidade do persogem em x sofre alteração
 				if [ $_velocY -eq 0 ]; then
 					((_velocX++))
@@ -1391,7 +1414,7 @@ function Jogador {
 
 
 			fi
-				
+
 			#Animacao do Personagem
 			((_jogAni++))
 
@@ -1404,10 +1427,10 @@ function Jogador {
 		else
 			_jogAni=0
 			_jogSprite=0
-		fi	
+		fi
 
 		# Controla o movimento na vertical(pulo) e faz colisao com o piso do cenario
-		if [ $_velocY -ne 0 ] || [ $((_jogY - 1 + _jogHeight)) -ne $((_piso - 1)) ]; then	
+		if [ $_velocY -ne 0 ] || [ $((_jogY - 1 + _jogHeight)) -ne $((_piso - 1)) ]; then
 
 			_jogSprite="2"
 			((_velocY+=_gravidade)) #incremento de velocidade pela gravidade
@@ -1427,7 +1450,7 @@ function Jogador {
 			fi
 		else
 			ColisaoBuraco # Verifica se houve colisao com buraco
-	
+
 		fi
 
 	;;
@@ -1435,7 +1458,7 @@ function Jogador {
 	esac
 
 	if [ $_screenGame = "GAME" ]; then
-		
+
 		#verifica qual sentido o personagem está andando para dar prioridade a colisao do bloco da esquerda ou direita quando colidir com dois
 		if [ $_jogSide = "D" ]; then
 			_tmp2=$(( _jogX / _blocoWidth ))
@@ -1449,7 +1472,7 @@ function Jogador {
 		if [ $? -eq 0 ]; then #se nao houve
 			ColisaoBloco $_tmp2 #verifica se houve colisao com o segundo quadrante
 		fi
-		
+
 		#verifica colisao com as moedas, como a largura do personagem equivale a 3 moedas por isso 3 testes
 		ColisaoCoin $(( _jogX / _coinWidth ))
 		ColisaoCoin $(( ((_jogX + 8)) / _coinWidth ))
@@ -1469,14 +1492,14 @@ function ColisaoMastro {
 
 		_screenGame="WIN"
 		Play "flagpole"
-		_flagY=$_jogY		
+		_flagY=$_jogY
 		_velocY=0
 		_tmp=$(( ((21 - $_jogY) * 330) + 50 ))
 
 		_tmpL=${#_tmp}
 		((_tmpL+=2))
 
-		_flagDraw[4]="${_flagDraw[4]:0:2}$_tmp${_flagDraw[4]:$_tmpL}"		
+		_flagDraw[4]="${_flagDraw[4]:0:2}$_tmp${_flagDraw[4]:$_tmpL}"
 
 		Score $_tmp
 		_jogX=$(( 2883 - _jogWidth))
@@ -1493,9 +1516,9 @@ function ColisaoEnemy {
 	for (( _k=1; _k<_ubound; _k++ )); do #laco para verificar cada inimigo
 
 		#verifica se o path do inimigo esta visivel na camera
-		if [ ${_enemyPathIni[$_k]} -lt $((_cameraX + _width)) ] && [ ${_enemyPathFim[$_k]} -gt $_cameraX ] && [ ${_enemySprite[$_k]} -lt 3 ]; then 
+		if [ ${_enemyPathIni[$_k]} -lt $((_cameraX + _width)) ] && [ ${_enemyPathFim[$_k]} -gt $_cameraX ] && [ ${_enemySprite[$_k]} -lt 3 ]; then
 			if [ $_jogX -gt $((_enemyX[_k] + _enemyWidth -1)) ]; then #personagem esta do lado direito do inimigo
-				_tmp=0 
+				_tmp=0
 
 			elif [ $_jogY -gt $((_enemyY[_k] + _enemyHeight[_k] -1)) ]; then #personagem esta do lado de baixo do inimigo
 				_tmp=0
@@ -1510,8 +1533,8 @@ function ColisaoEnemy {
 			#Próximo if verifica se a colisão foi lateral entao o personagem morre
 			elif [ $((_jogY + _jogHeight -1 - _velocY)) -lt ${_enemyY[$_k]} ]; then
 				Play "enemy"
-				Score 100				
-				_jogY=$((_enemyY[_k] - _jogHeight)) 
+				Score 100
+				_jogY=$((_enemyY[_k] - _jogHeight))
 				_velocY=-3
 				_enemySprite[$_k]=2
 				_enemyDead[$_k]=1
@@ -1529,7 +1552,7 @@ function ColisaoEnemy {
 				return 1 #retorna que houve colisao
 			fi
 
-			
+
 		fi
 	done
 
@@ -1568,7 +1591,7 @@ function ColisaoCoin {
 
 		Play "coin" #toca o som da moeda
 		_coin[$_tmp]=0 #tira a moeda do vetor
-		GetCoin #chama funcao para fazer contagem de ponto da moeda				
+		GetCoin #chama funcao para fazer contagem de ponto da moeda
 
 		_tmp2=$(( _coinX + _coinWidth )) #pega a posicao do final da moeda
 
@@ -1602,7 +1625,7 @@ function GetCoin {
 function ColisaoBloco {
 
 	_tmpQ=$1 #recebe a posicao do quadrante
-	
+
 	_tmp=${_blocoQ[$_tmpQ]} #recebe a posicao do indice do bloco se existir
 
 	if [ $_tmpQ -eq 0 ] || [ -z $_tmp ]; then #verifica se o indíce do quadrante não é zero e se existe bloco no quadrante
@@ -1644,7 +1667,7 @@ function ColisaoBloco {
 		fi
 
 		Play "bloco" #som do bloco quebrando
-		Score 50 #incrementa score			
+		Score 50 #incrementa score
 		_bloco[$_tmp]=0 #Limpa o bloco do vetor
 		_jogY=$((_blocoY + _blocoHeight)) #posiciona o jogador abaixo do bloco
 		_velocY=$((- _velocY)) #incrementa a velocidade de y
@@ -1687,12 +1710,12 @@ function Dead {
 	_screenGame="DEAD"
 
 	((_jogLife--)) #Subtrai um vida do personagem
-	
+
 	if [ $_jogLife = 0 ]; then #se zerou as vidas do jogador toca audio fim de jogo
 		Play "gameover"
 	else #se não toca audio de perda de vida
 		Play "die"
-	fi	
+	fi
 
 	_jogDead=true #define variavel verdadeira para rotina de animação da morte do personagem
 
@@ -1790,7 +1813,7 @@ function MoveEnemy {
 		for (( _k=1; _k<_ubound; _k++ )); do #laco para verificar cada inimigo
 
 			#verifica se o path do inimigo esta visivel na camera
-			if [ ${_enemyPathIni[$_k]} -lt $((_cameraX + _width)) ] && [ ${_enemyPathFim[$_k]} -gt $_cameraX ] && [ ${_enemySprite[$_k]} -lt 6 ]; then 
+			if [ ${_enemyPathIni[$_k]} -lt $((_cameraX + _width)) ] && [ ${_enemyPathFim[$_k]} -gt $_cameraX ] && [ ${_enemySprite[$_k]} -lt 6 ]; then
 
 				#((_aniEnemy[_k]++))
 
@@ -1802,7 +1825,7 @@ function MoveEnemy {
 					_aniEnemy=1
 
 					;;
-				1)	
+				1)
 					ChangeSpriteEnemy $_k
 					((_enemySprite[_k]+=_aniEnemy))
 					;;
@@ -1821,17 +1844,17 @@ function MoveEnemy {
 					_enemySprite[$_k]=5;;
 				5)
 					_enemySprite[$_k]=6;;
-				esac 
+				esac
 
 			fi
 
 
-			_enemyHeight[$_k]="_gompa${_enemySprite[$_k]}[0]"	
+			_enemyHeight[$_k]="_gompa${_enemySprite[$_k]}[0]"
 			_enemyHeight[$_k]=${!_enemyHeight[$_k]}
 			_enemyY[$_k]=$((_piso - _enemyHeight[$_k]))
 
 		done
-		
+
 	esac
 }
 
@@ -1854,6 +1877,13 @@ function ChangeSpriteEnemy {
 }
 
 # [ INICIO SCRIPT ] ----------------------------------------------------------------------------------------------------------
+
+luigi_arg="$1"
+
+is_luigi=0
+if [[ ${luigi_arg} == "luigi" ]]; then
+	is_luigi=1
+fi
 
 # Carrega as configurações salva
 . .settings
@@ -2174,7 +2204,226 @@ _marioE211='  █░░███████░░█'
 _marioE212='   ██   █████░░█'
 _marioE213='         ███ ██'
 
-_gompa0[0]=10                                 
+
+# Overide mario
+if [[ "${is_luigi}" == "1" ]]; then
+	marioD0[0]=16
+	 _marioD0[1]=""
+	 _marioD0[2]="   █████"
+	 _marioD0[3]='  █░░░░L███'
+	 _marioD0[4]=' █░░░░░░░░░█'
+	 _marioD0[5]=' ███  █ ███'
+	 _marioD0[6]='█  ██ █    █'
+	 _marioD0[7]='█  ██  █   █'
+	 _marioD0[8]=' ██   █████'
+	 _marioD0[9]='  ██     █'
+	_marioD0[10]=' █░░██░░█'
+	_marioD0[11]='█░░░░██░░█'
+	_marioD0[12]='█░░░░█████'
+	_marioD0[13]=' █   ██ ██'
+	_marioD0[14]=' █  ░░░███'
+	_marioD0[15]='  █░░░░░█'
+	_marioD0[16]='   █████'
+
+	_marioE0[0]=16
+	 _marioE0[1]=""
+	 _marioE0[2]='    █████'
+	 _marioE0[3]=' ███L░░░░█'
+	 _marioE0[4]='█░░░░░░░░░█'
+	 _marioE0[5]=' ███ █  ███'
+	 _marioE0[6]='█    █ ██  █'
+	 _marioE0[7]='█   █  ██  █'
+	 _marioE0[8]=' █████   ██'
+	 _marioE0[9]='  █     ██'
+	_marioE0[10]='   █░░██░░█'
+	_marioE0[11]='  █░░██░░░░█'
+	_marioE0[12]='  █████░░░░█'
+	_marioE0[13]='  ██ ██   █'
+	_marioE0[14]='  ███░░░  █'
+	_marioE0[15]='   █░░░░░█'
+	_marioE0[16]='    █████'
+
+	_marioD1[0]=16
+	 _marioD1[1]='     █████'
+	 _marioD1[2]='    █░░░░L███'
+	 _marioD1[3]='   █░░░░░░░░░█'
+	 _marioD1[4]='   ███  █ ███'
+	 _marioD1[5]='  █  ██ █    █'
+	 _marioD1[6]='  █  ██  █   █'
+	 _marioD1[7]='   ██   █████'
+	 _marioD1[8]='   ███     █'
+	 _marioD1[9]=' ██░░░██░░███'
+	_marioD1[10]='█  ░░░░██░░█░█'
+	_marioD1[11]='█   ░░██████░ █'
+	_marioD1[12]=' █  ████ ██ █ █'
+	_marioD1[13]='  █████████░░█'
+	_marioD1[14]=' █░░██████░░░█'
+	_marioD1[15]=' █░░░█  █░░░█'
+	_marioD1[16]='  ███    ███'
+
+	_marioE1[0]=16
+	 _marioE1[1]='     █████'
+	 _marioE1[2]='  ███L░░░░█'
+	 _marioE1[3]=' █░░░░░░░░░█'
+	 _marioE1[4]='  ███ █  ███'
+	 _marioE1[5]=' █    █ ██  █'
+	 _marioE1[6]=' █   █  ██  █'
+	 _marioE1[7]='  █████   ██'
+	 _marioE1[8]='   █     ███'
+	 _marioE1[9]='  ███░░██░░░██'
+	_marioE1[10]=' █░█░░██░░░░  █'
+	_marioE1[11]='█ ░██████░░   █'
+	_marioE1[12]='█ █ ██ ████  █'
+	_marioE1[13]=' █░░█████████'
+	_marioE1[14]=' █░░░██████░░█'
+	_marioE1[15]='  █░░░█  █░░░█'
+	_marioE1[16]='   ███    ███'
+
+	_marioF0[0]=16
+	 _marioF0[1]='    ███████'
+	 _marioF0[2]='  ██░░░L░░░██'
+	 _marioF0[3]=' █░░░░███░░░░█'
+	 _marioF0[4]='  ███████████'
+	 _marioF0[5]=' █   █   █   █'
+	 _marioF0[6]='██    ░░░    ██'
+	 _marioF0[7]=' █ █████████ █'
+	 _marioF0[8]='█ █   █░█   ██'
+	 _marioF0[9]='█  ██ █░█ ██  █'
+	_marioF0[10]=' █ █░█████░░ █ █'
+	_marioF0[11]='  █░░░░░░░░█████'
+	_marioF0[12]=' ████░░░░░█░░░█'
+	_marioF0[13]='█░░░░█░░░█░░░░█'
+	_marioF0[14]=' █░░░░█████░░░█'
+	_marioF0[15]='  █░░░█    ███'
+	_marioF0[16]='   ███'
+
+	_marioD2[0]=16
+	 _marioD2[1]='     █████  ███'
+	 _marioD2[2]='    █░░░░L██   █'
+	 _marioD2[3]='   █░░░░░░░░█  █'
+	 _marioD2[4]='   ███  █ ███░█'
+	 _marioD2[5]='  █  ██ █    ░█'
+	 _marioD2[6]='  █  ██  █   ░█'
+	 _marioD2[7]='   ██   ██████'
+	 _marioD2[8]='    ██      ░█'
+	 _marioD2[9]='  █░░░█░░░█░█'
+	_marioD2[10]=' ███░░░█░░░████'
+	_marioD2[11]='█   █░░█ ██ █░░█'
+	_marioD2[12]='█   █░██████░░░█'
+	_marioD2[13]=' █░█████████░░█'
+	_marioD2[14]='█░░░████████░░█'
+	_marioD2[15]='█░░██████   ██'
+	_marioD2[16]=' ██ ███'
+
+	_marioE2[0]=16
+	 _marioE2[1]=' ███  █████'
+	 _marioE2[2]='█   ██L░░░░█'
+	 _marioE2[3]='█  █░░░░░░░░█'
+	 _marioE2[4]=' █░███ █  ███'
+	 _marioE2[5]=' █░    █ ██  █'
+	 _marioE2[6]=' █░   █  ██  █'
+	 _marioE2[7]='  ██████   ██'
+	 _marioE2[8]='  █░      ██'
+	 _marioE2[9]='   █░█░░░█░░░█'
+	_marioE2[10]=' ████░░░█░░░███'
+	_marioE2[11]='█░░█ ██ █░░█   █'
+	_marioE2[12]='█░░░██████░█   █'
+	_marioE2[13]=' █░░█████████░█'
+	_marioE2[14]=' █░░████████░░░█'
+	_marioE2[15]='  ██   ██████░░█'
+	_marioE2[16]='         ███ ██'
+
+	_marioD00=13
+	 _marioD01="    █████"
+	 _marioD02='   █░░░░L███'
+	 _marioD03='  █░░░░░░░░░█'
+	 _marioD04='  ███  █ ███'
+	 _marioD05=' █  ██ █    █'
+	 _marioD06=' █  ██  █   █'
+	 _marioD07='  ██   █████'
+	 _marioD08='   ██     █'
+	 _marioD09='  █   ██ ██'
+	_marioD010='  █  ░░░███'
+	_marioD011='   █░░░░░█'
+	_marioD012='    █████'
+
+	_marioE00=13
+	 _marioE01='     █████'
+	 _marioE02='  ███L░░░░█'
+	 _marioE03=' █░░░░░░░░░█'
+	 _marioE04='  ███ █  ███'
+	 _marioE05=' █    █ ██  █'
+	 _marioE06=' █   █  ██  █'
+	 _marioE07='  █████   ██'
+	 _marioE08='   █     ██'
+	 _marioE09='   ██ ██   █'
+	_marioE010='   ███░░░  █'
+	_marioE011='    █░░░░░█'
+	_marioE012='     █████'
+
+	_marioD10=13
+	 _marioD11='     █████'
+	 _marioD12='    █░░░░L███'
+	 _marioD13='   █░░░░░░░░░█'
+	 _marioD14='   ███  █ ███'
+	 _marioD15='  █  ██ █    █'
+	 _marioD16='  █  ██  █   █'
+	 _marioD17='   ██   █████'
+	 _marioD18='   ███     █'
+	 _marioD19='  █ ████ ██ █'
+	_marioD110='  █████████░░█'
+	_marioD111=' █░░██████░░░█'
+	_marioD112=' █░░░█  █░░░█'
+	_marioD113='  ███    ███'
+
+	_marioE10=13
+	 _marioE11='     █████'
+	 _marioE12='  ███L░░░░█'
+	 _marioE13=' █░░░░░░░░░█'
+	 _marioE14='  ███ █  ███'
+	 _marioE15=' █    █ ██  █'
+	 _marioE16=' █   █  ██  █'
+	 _marioE17='  █████   ██'
+	 _marioE18='   █     ███'
+	 _marioE19='  █ ██ ████ █'
+	_marioE110=' █░░█████████'
+	_marioE111=' █░░░██████░░█'
+	_marioE112='  █░░░█  █░░░█'
+	_marioE113='   ███    ███'
+
+	_marioD20=13
+	 _marioD21='     █████  ███'
+	 _marioD22='    █░░░░L██   █'
+	 _marioD23='   █░░░░░░░░█  █'
+	 _marioD24='   ███  █ ███░█'
+	 _marioD25='  █  ██ █    ░█'
+	 _marioD26='  █  ██  █   ░█'
+	 _marioD27='   ██   ██████'
+	 _marioD28='    ██      ░█'
+	 _marioD29='   ██████░░░█'
+	_marioD210='  █████████░░█'
+	_marioD211=' █░░███████░░█'
+	_marioD212='█░░██████  ██'
+	_marioD213=' ██ ███'
+
+	_marioE20=13
+	 _marioE21=' ███  █████'
+	 _marioE22='█   ██L░░░░█'
+	 _marioE23='█  █░░░░░░░░█'
+	 _marioE24=' █░███ █  ███'
+	 _marioE25=' █░    █ ██  █'
+	 _marioE26=' █░   █  ██  █'
+	 _marioE27='  ██████   ██'
+	 _marioE28='  █░      ██'
+	 _marioE29='   █░░░██████'
+	_marioE210='  █░░█████████'
+	_marioE211='  █░░███████░░█'
+	_marioE212='   ██   █████░░█'
+	_marioE213='         ███ ██'
+
+fi
+
+_gompa0[0]=10
  _gompa0[1]="       ████"
  _gompa0[2]="   ██████████"
  _gompa0[3]="  ███ >████< █"
@@ -2210,7 +2459,7 @@ _gompa2[0]=10
  _gompa2[9]="    ██░░░░████"
 _gompa2[10]="     ██░░████"
 
-_gompa3[0]=8                                   
+_gompa3[0]=8
  _gompa3[1]="    ████████"
  _gompa3[2]=" ███ >████< ███"
  _gompa3[3]="████ █ ██ █ ████"
@@ -2220,21 +2469,21 @@ _gompa3[0]=8
  _gompa3[7]="   ███░░░░███"
  _gompa3[8]="    ███░░███"
 
-_gompa3[0]=5                                                                   
+_gompa3[0]=5
  _gompa3[1]="   ████████████"
  _gompa3[2]=" ████ >████< ████"
  _gompa3[3]="█████ █ ██ █ █████"
  _gompa3[4]="   ███░░░░░░███"
  _gompa3[5]="    ███░░░░███"
- 
-_gompa4[0]=3                                                                   
+
+_gompa4[0]=3
  _gompa4[1]="   ████████████"
  _gompa4[2]="█████ █ ██ █ █████"
  _gompa4[3]="    ███░░░░███"
 
 _nuvemDraw[0]=13
  _nuvemDraw[1]="               ███████"
- _nuvemDraw[2]="             ██       ██" 
+ _nuvemDraw[2]="             ██       ██"
  _nuvemDraw[3]="           ██           ██"
  _nuvemDraw[4]="          █     █   █  ░  █"
  _nuvemDraw[5]="      ████      █   █   ░  ████"
@@ -2456,13 +2705,13 @@ _tempoN=$((10#`date +%N`))
 while true; do
 
 	FPS #Atualiza a taxa de quadros por segundo
-	
+
 	ListenKey #Houve o Teclado
 
 	if [ $_next = true ]; then
 		LoadColors #Carrega as cores de fundo
 
-		MoveEnemy #Calcula movimento do inimigo		
+		MoveEnemy #Calcula movimento do inimigo
 
 		Jogador #Calcula Coordenadas do Jogador
 
