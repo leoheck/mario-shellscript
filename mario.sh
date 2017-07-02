@@ -462,12 +462,14 @@ function Sair {
 	tput reset
 
 	#Restaura o terminal ao seu padrao
-	#stty sane
+	stty sane
 
 	# Verifica se ocorreu algum erro e imprime na tela do terminal
 	if [ "$_erro" != "" ]; then
 		echo -e $_erro
 	fi
+
+	reset
 
 	# termina o programa
 	exit
